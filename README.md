@@ -1,2 +1,2 @@
 # BiolSys_GFM
-hello world
+Model ewolucyjny oparty o geometryczny model Fishera (GMF)
