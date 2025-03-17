@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_population(population, alpha, generation, save_path=None, show_plot=False, circle_radius=0.5):
+def plot_population(population, alpha, generation, circle_radius, save_path=None, show_plot=False):
     """
     Rysuje populację w 2D wraz z optymalnym fenotypem alpha oraz okręgami wokół optimum.
     Można zarówno wyświetlać (show_plot=True), jak i zapisywać obraz (save_path != None).

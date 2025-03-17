@@ -6,7 +6,7 @@ from environment import Environment
 from population import Population
 from mutation import mutate_population
 from selection import proportional_selection, threshold_selection
-from reproduction import asexual_reproduction
+from reproduction import asexual_reproduction, bernoulli_reproduction
 from visualization import plot_population
 
 # main.py
@@ -44,12 +44,14 @@ def main():
             break
 
         # 3. Reprodukcja (w przykładzie jest już wbudowana w selekcję)
+        new_population =bernoulli_reproduction(survivors, env.get_optimal_phenotype(), config.sigma, config.circle_radius, config.N)
+        pop.set_individuals(new_population)
         # 4. Zmiana środowiska
         env.update()
 
         # Zapis aktualnego stanu populacji do pliku PNG
         frame_filename = os.path.join(frames_dir, f"frame_{generation:03d}.png")
-        plot_population(pop, env.get_optimal_phenotype(), generation, save_path=frame_filename, show_plot=False)
+        plot_population(pop, env.get_optimal_phenotype(), generation, config.circle_radius,save_path=frame_filename, show_plot=False)
 
     print("Symulacja zakończona. Tworzenie GIF-a...")
 
