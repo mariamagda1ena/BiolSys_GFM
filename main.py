@@ -36,6 +36,7 @@ def main():
         # 2. Selekcja
         survivors = threshold_selection(pop, env.get_optimal_phenotype(), config.sigma, config.threshold)
         pop.set_individuals(survivors)
+        #print(f"Pokolenie {generation}: Przeżyło {len(survivors)} osobników")
         if len(survivors) > 0:
             proportional_selection(pop, env.get_optimal_phenotype(), config.sigma, config.N)
         else:
@@ -73,7 +74,7 @@ def create_gif_from_frames(frames_dir, gif_filename, duration=0.2):
     with imageio.get_writer(gif_filename, mode='I', duration=duration) as writer:
         for file_name in filenames:
             path = os.path.join(frames_dir, file_name)
-            image = imageio.imread(path)
+            image = imageio.v2.imread(path)
             writer.append_data(image)
 
 
