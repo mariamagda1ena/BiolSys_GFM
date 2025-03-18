@@ -30,6 +30,7 @@ alpha0 = np.array([0.0, 0.0])
 c = np.array([0.01, 0.01])     
 delta = 0.01    # odchylenie standardowe dla fluktuacji
 max_generations = 100  # liczba pokoleń do zasymulowania
+circle_radius = 0.5
 
 # ----------------------
 # PARAMETRY REPRODUKCJI
