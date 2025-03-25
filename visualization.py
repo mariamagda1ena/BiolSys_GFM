@@ -14,11 +14,11 @@ def plot_population(population, alpha, generation, circle_radius, save_path=None
 
     # Rysowanie okręgów wokół optimum
     distances = [5, 3, 1]
-    labels = ['Szansa na 5 dzieci', 'Szansa na 3 dzieci', 'Szansa na 1 dziecko']
-    gradient = [0.1, 0.2, 0.3]
+    labels = ['5 szans na potomka', '3 szanse na potomka', '1 szansa na potomka'][::-1]
+    gradient = [0.22, 0.3, 0.5]
 
     for r, g, l in zip(distances, gradient, labels):
-        circle = plt.Circle(alpha, r * circle_radius, color='red', alpha=g, fill=True, zorder=1, label=l)
+        circle = plt.Circle(alpha, r * circle_radius, color='green', alpha=g, fill=True, zorder=1, label=l)
         plt.gca().add_patch(circle)
 
     plt.scatter(x, y, label="Osobnik", alpha=0.7)
