@@ -37,13 +37,13 @@ def bernoulli_reproduction(survivors, alpha, p, circle_radius, N):
         distance = np.linalg.norm(np.array(parent.get_phenotype()) - np.array(alpha))
 
         if distance <= 1 * circle_radius:
-            max_children = 5
+            max_children = 10
         elif distance <= 3 * circle_radius:
-            max_children = 3
+            max_children = 7
         elif distance <= 5 * circle_radius:
-            max_children = 1
+            max_children = 3
         else:
-            max_children = 0
+            max_children = 1
 
         children = np.random.binomial(max_children, p)
 

@@ -18,15 +18,22 @@ class Environment:
         self.c = c
         self.delta = delta
 
-    def expand(self):
+    def expand(self,dim):
         """
         Powielamy jedno losowe siedlisko,
         metoda wykorzystywana sporadycznie
         """
-        alpha = self.alpha
-        rand_optim = alpha[random.randint(0,len(alpha)-1)]
-        alpha.append(rand_optim)
-        self.alpha = alpha
+        alpha, c = self.alpha, self.c
+
+        selected_optim_index = random.randint(0,len(alpha)-1)
+
+        alpha.append(alpha[selected_optim_index])
+        #c.append(-1*c[selected_optim_index])
+        new_vector = np.random.uniform(-1, 1, dim)
+        rescaled = new_vector*(np.linalg.norm(c[0])/np.linalg.norm(new_vector))
+        c.append(rescaled)
+
+        self.alpha, self.c = alpha, c
 
     def update(self):
         """
@@ -37,10 +44,10 @@ class Environment:
 
         # jak nie będzie siedlisk to tu wyskoczy index error
         n = len(self.alpha[0])
-        alpha = self.alpha
+        alpha, c = self.alpha, self.c
 
         for i in range(len(alpha)):
-            random_shift = np.random.normal(loc=self.c, scale=self.delta, size=n)
+            random_shift = np.random.normal(loc=c[i], scale=self.delta, size=n)
             alpha[i] = alpha[i] + random_shift
 
         self.alpha = alpha 

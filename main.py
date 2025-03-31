@@ -12,6 +12,7 @@ from visualization import plot_population
 # main.py
 
 import os
+import shutil
 import numpy as np
 import config
 from environment import Environment
@@ -27,6 +28,11 @@ def main():
 
     # Katalog, w którym zapisujemy obrazki (możesz nazwać np. "frames/")
     frames_dir = "frames"
+
+    # Usuń katalog frames_dir, jeśli istnieje
+    if os.path.exists(frames_dir):
+        shutil.rmtree(frames_dir)
+
     os.makedirs(frames_dir, exist_ok=True)  # tworzy folder, jeśli nie istnieje
 
     for generation in range(config.max_generations):
@@ -38,19 +44,19 @@ def main():
         pop.set_individuals(survivors)
         #print(f"Pokolenie {generation}: Przeżyło {len(survivors)} osobników")
         if len(survivors) > 0:
-            proportional_selection(pop, env.get_optimal_phenotype(), config.sigma, config.N)
+            threshold_selection(pop, env.get_optimal_phenotype(), config.sigma, config.N)
         else:
             print(f"Wszyscy wymarli w pokoleniu {generation}. Kończę symulację.")
             break
 
         # 3. Reprodukcja (w przykładzie jest już wbudowana w selekcję)
-        new_population =bernoulli_reproduction(survivors, env.get_optimal_phenotype(), config.sigma, config.circle_radius, config.N)
+        new_population =bernoulli_reproduction(survivors, env.get_optimal_phenotype(), config.p, config.circle_radius, config.N)
         pop.set_individuals(new_population)
         # 4. Zmiana środowiska
         env.update()
         # Rozszerzanie środowiska w równych odstępach pokoleń
         if generation > 0 and generation % (config.max_generations // config.max_num_optims) == 0:
-            env.expand()
+            env.expand(config.n)
 
         # Zapis aktualnego stanu populacji do pliku PNG
         frame_filename = os.path.join(frames_dir, f"frame_{generation:03d}.png")
