@@ -31,10 +31,14 @@ c = np.array([0.01, 0.01])
 delta = 0.1    # odchylenie standardowe dla fluktuacji
 max_generations = 300  # liczba pokoleń do zasymulowania
 circle_radius = 0.5
-max_num_optims = 3 # finalna liczba optimów fenotypowych
+p = 0.5
+max_num_optims = 6 # finalna liczba optimów fenotypowych
 
 # ----------------------
 # PARAMETRY REPRODUKCJI
 # ----------------------
 # W wersji bezpłciowej zakładamy klonowanie z uwzględnieniem mutacji.
 # Jeśli chcemy modelować płciowo, trzeba dodać odpowiednie parametry.
+# Zawsze maksymalna liczba dzieci będzie odwrotnie proporcjonalna do odległości od optimum
+# Jeśli wpiszemy 1,3,5 to dla osobnika znajdującego się w odległości 1*circle_radius max liczbą dzieci będzie 5 itd.
+children_proportion = [1,3,5]

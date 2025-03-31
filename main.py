@@ -37,15 +37,15 @@ def main():
         survivors = threshold_selection(pop, env.get_optimal_phenotype(), config.sigma, config.threshold)
         pop.set_individuals(survivors)
         #print(f"Pokolenie {generation}: Przeżyło {len(survivors)} osobników")
+        # 3. Reprodukcja
         if len(survivors) > 0:
-            proportional_selection(pop, env.get_optimal_phenotype(), config.sigma, config.N)
+            new_population = bernoulli_reproduction(survivors, env.get_optimal_phenotype(), config.p,
+                                                    config.circle_radius, config.children_proportion, config.N, config.sigma)
+            pop.set_individuals(new_population)
         else:
             print(f"Wszyscy wymarli w pokoleniu {generation}. Kończę symulację.")
             break
 
-        # 3. Reprodukcja (w przykładzie jest już wbudowana w selekcję)
-        new_population =bernoulli_reproduction(survivors, env.get_optimal_phenotype(), config.sigma, config.circle_radius, config.N)
-        pop.set_individuals(new_population)
         # 4. Zmiana środowiska
         env.update()
         # Rozszerzanie środowiska w równych odstępach pokoleń
@@ -54,7 +54,7 @@ def main():
 
         # Zapis aktualnego stanu populacji do pliku PNG
         frame_filename = os.path.join(frames_dir, f"frame_{generation:03d}.png")
-        plot_population(pop, env.get_optimal_phenotype(), generation, config.circle_radius,save_path=frame_filename, show_plot=False)
+        plot_population(pop, env.get_optimal_phenotype(), generation, config.circle_radius, config.children_proportion, save_path=frame_filename, show_plot=False)
 
     print("Symulacja zakończona. Tworzenie GIF-a...")
 
