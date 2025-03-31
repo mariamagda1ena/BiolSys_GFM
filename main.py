@@ -48,6 +48,9 @@ def main():
         pop.set_individuals(new_population)
         # 4. Zmiana środowiska
         env.update()
+        # Rozszerzanie środowiska w równych odstępach pokoleń
+        if generation > 0 and generation % (config.max_generations // config.max_num_optims) == 0:
+            env.expand()
 
         # Zapis aktualnego stanu populacji do pliku PNG
         frame_filename = os.path.join(frames_dir, f"frame_{generation:03d}.png")

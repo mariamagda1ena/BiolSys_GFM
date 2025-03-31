@@ -3,7 +3,7 @@
 import copy
 
 import numpy as np
-from numpy.distutils.command.config import config
+#from numpy.distutils.command.config import config
 import config
 from mutation import mutate_individual
 
