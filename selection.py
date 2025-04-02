@@ -9,8 +9,9 @@ def fitness_function(phenotype, alpha, sigma):
     :param alpha: optymalny fenotyp (np.array)
     :param sigma: odchylenie (float) kontrolujące siłę selekcji
     """
-    diffs = [phenotype - a for a in alpha]
-    min_dist = min([np.sum(diff**2) for diff in diffs])
+    dist_matrix = np.array(phenotype) - np.array(alpha)
+    min_dist = min(np.linalg.norm(dist_matrix, axis=1))
+    
     return np.exp(-min_dist / (2 * sigma**2))
 
 def proportional_selection(population, alpha, sigma, N):

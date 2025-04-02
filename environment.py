@@ -25,10 +25,8 @@ class Environment:
         """
         alpha, c = self.alpha, self.c
 
-        selected_optim_index = random.randint(0,len(alpha)-1)
+        alpha.append(alpha[random.randint(0,len(alpha)-1)])
 
-        alpha.append(alpha[selected_optim_index])
-        #c.append(-1*c[selected_optim_index])
         new_vector = np.random.uniform(-1, 1, dim)
         rescaled = new_vector*(np.linalg.norm(c[0])/np.linalg.norm(new_vector))
         c.append(rescaled)
