@@ -13,6 +13,7 @@ from visualization import plot_population
 
 import os
 import shutil
+import time
 import numpy as np
 import config
 from environment import Environment
@@ -23,6 +24,9 @@ from reproduction import asexual_reproduction
 from visualization import plot_population
 
 def main():
+    
+    start_time = time.time()
+
     env = Environment(alpha_init=config.alpha0, c=config.c, delta=config.delta)
     pop = Population(size=config.N, n_dim=config.n)
 
@@ -68,6 +72,9 @@ def main():
     # Tutaj wywołujemy funkcję, która połączy zapisane klatki w animację
     create_gif_from_frames(frames_dir, "simulation.gif")
     print("GIF zapisany jako simulation.gif")
+
+    end_time = time.time()
+    print(f"Czas wykonania: {end_time - start_time:.2f} sekundy")
 
 def create_gif_from_frames(frames_dir, gif_filename, duration=0.2):
     """

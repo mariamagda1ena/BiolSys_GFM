@@ -44,7 +44,24 @@ def bernoulli_reproduction(survivors, alpha, p, circle_radius, children_proporti
         return []
 
     for parent in survivors:
-        distance = np.linalg.norm(np.array(parent.get_phenotype()) - np.array(alpha))
+
+        """
+        Gdy mamy wiele optimów, takie liczenie odległości jest kompletnie bez sensu
+
+        # distance = np.linalg.norm(np.array(parent.get_phenotype()) - np.array(alpha))
+
+        W naszym przypadku, alpha jest macierzą! Róznica (phenotype - alpha) daje macierz wektorów fenotypu od poszczególnych optimów
+        
+        DLA n OPTIMÓW:
+
+        - np.linalg.norm() spłaszcza macierz w wektor długości 2n i liczy normę L2 z tego długiego wektora.
+        - Wynikiem tej funkcji jest jedna liczba, równa n^2*RMS odległości od poszczególnych optimów (n^2 razy średnia kwadratowa)
+        - Gdy optima się oddalają, średnia kwadratowa jest bardzo szybko dominowana przez duże odgległości, dlatego osobniki nagle przestają się rozmnażać
+        """
+        dist_matrix = np.array(parent.get_phenotype()) - np.array(alpha)
+        distance = min(np.linalg.norm(dist_matrix, axis=1))
+
+
         for threshold, max_children in rules:
             if distance <= threshold * circle_radius:
                 chance = max_children
