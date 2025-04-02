@@ -10,8 +10,8 @@ def fitness_function(phenotype, alpha, sigma):
     :param sigma: odchylenie (float) kontrolujące siłę selekcji
     """
     diffs = [phenotype - a for a in alpha]
-    distances = [np.sum(diff**2) for diff in diffs]
-    return min([np.exp(-dist / (2 * sigma**2)) for dist in distances])
+    min_dist = min([np.sum(diff**2) for diff in diffs])
+    return np.exp(-min_dist / (2 * sigma**2))
 
 def proportional_selection(population, alpha, sigma, N):
     """
