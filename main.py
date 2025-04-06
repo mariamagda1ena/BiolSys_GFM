@@ -43,7 +43,7 @@ def main():
         # 1. Reprodukcja
         if len(survivors) > 0:
             new_population = bernoulli_reproduction(survivors, env.get_habitats(), config.p,
-                                                    config.fitness_levels, config.children_proportion, config.N, config.sigma)
+                                                    config.fitness_levels, config.children_proportion, config.N, config.sigma, config.mu)
             pop.set_individuals(new_population)
         else:
             print(f"Wszyscy wymarli w pokoleniu {generation-1}. Kończę symulację.")
