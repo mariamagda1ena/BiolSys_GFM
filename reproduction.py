@@ -48,11 +48,8 @@ def bernoulli_reproduction(survivors, habitats, p, circle_radius, children_propo
                     mutate_individual(new_individual,mu=config.mu, mu_c=config.mu_c, xi=config.xi)
                     current_habitat_idx = new_individual.find_new_digs(habitats)[0]
                     habitats[current_habitat_idx].add_residents(new_individual)
-                    # new_population.append(new_individual)
 
 
-    # main.py wtedy przechowuje gdzieś listę obiektów klasy Habitat i konstruuje populację
-    # a jaki jest wtedy output tej metody??
     for habitat in habitats:
         residents = habitat.get_residents()
         if len(residents) > N:
@@ -63,7 +60,6 @@ def bernoulli_reproduction(survivors, habitats, p, circle_radius, children_propo
             new_population.extend(residents)
 
     
-    # ona jest appendowana też wcześniej
     return new_population
 
 

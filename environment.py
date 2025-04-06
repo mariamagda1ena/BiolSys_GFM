@@ -45,11 +45,6 @@ class Environment:
         for habitat in self.habitats:
             habitat.shift(self.delta)
 
-
-    def get_optimal_phenotypes(self):
-        # czy to w ogóle jest potrzebne?
-        return [habitat.get_optim() for habitat in self.habitats]
-
     def get_habitats(self):
         return self.habitats
     
@@ -57,12 +52,11 @@ class Habitat:
     def __init__(self, optim, vector):
         self.optim = optim
         self.vector = vector
-        self.residents = [] # koniecznie lista obiektów klasy Individual
+        self.residents = []
 
     def shift(self, delta):
         random_shift = np.random.normal(loc=self.vector, scale=delta, size=len(self.optim))
         self.optim += random_shift
-        #print(self.optim)
 
     def add_residents(self, individual):
         

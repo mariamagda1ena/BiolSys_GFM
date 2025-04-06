@@ -17,7 +17,6 @@ class Population:
         """
         self.individuals = []
         for _ in range(size):
-            # przykładowo inicjalizujemy fenotypy w okolicach [0, 0, ..., 0]
             phenotype = np.random.normal(loc=alpha_init, scale=1.0, size=n_dim)
             self.individuals.append(Individual(phenotype))
 

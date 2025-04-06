@@ -63,19 +63,10 @@ def main():
 
 
         # 4. Selekcja
-        # aktualizujemy current_habitat metodą populacji, która wywołuje metodę osobnika
-        # jeśli w tym miejscu zachodzi aktualizacja, to fitness może liczyć tylko jedną odległość
-
         survivors = threshold_selection(pop, env.get_habitats(), config.sigma, config.threshold)
-      
-
-
-        # czy dodać tutaj kolejną selekcję ze względu na pojemność siedliska?
-
         pop.set_individuals(survivors)
 
 
-        #print([habitat.get_optim() for habitat in env.get_habitats()])
         # 5. Zapis aktualnego stanu populacji do pliku PNG
         frame_filename = os.path.join(frames_dir, f"frame_{generation:03d}.png")
         plot_population(pop, env.get_habitats(), generation, config.circle_radius, config.children_proportion, save_path=frame_filename, show_plot=False)
