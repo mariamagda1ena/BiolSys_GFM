@@ -19,8 +19,10 @@ def plot_population(population, habitats, generation, fitness_levels, children_p
     optima_xs = [optim[0] for optim in alpha]
     optima_ys = [optim[1] for optim in alpha]
 
+
     plt.figure(figsize=(16, 16))
     labels = sorted(children_proportion)
+
     # Rysowanie okręgów wokół optimum
     sorted_proportion = sorted(children_proportion)
     # Lista [(odległość, max liczba dzieci)]
@@ -57,7 +59,9 @@ def plot_population(population, habitats, generation, fitness_levels, children_p
         optimum_counts[idx] += 1
 
     plt.scatter(population_xs, population_ys, color=individual_colors, label="Osobnik", alpha=0.7)
-    plt.scatter(optima_xs, optima_ys, color=optimum_colors, edgecolors='black', marker='X', s = 200)
+
+    plt.scatter(optima_xs, optima_ys, color=optimum_colors, edgecolors='black', marker='X', s=150)
+
 
     for i in range(len(alpha)):
         label_optimum = f"Optimum {i + 1} ({optimum_counts[i]} osobników)"
@@ -67,14 +71,14 @@ def plot_population(population, habitats, generation, fitness_levels, children_p
 
 
     plt.text(0, 5.5, f"Liczba osobników: {len(population.get_individuals())}",
-             fontsize=22, ha='center', color='black', zorder=6)
+             fontsize=12, ha='center', color='black', zorder=6)
     
     plt.text(0, 5.0, f"Liczba optimów fenotypowych: {len(alpha)}",  # Przesunięcie w dół
-             fontsize=22, ha='center', color='black', zorder=6)
+             fontsize=12, ha='center', color='black', zorder=6)
     
-    plt.xlim(-12, 12)
-    plt.ylim(-12, 12)
-    plt.legend(loc='upper left',fontsize=22)
+    plt.xlim(-10, 10)
+    plt.ylim(-10, 10)
+    plt.legend(loc='upper right',fontsize=12)
     plt.grid(True, linestyle='--', alpha=0.5)
     plt.tight_layout()
 
