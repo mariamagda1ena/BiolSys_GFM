@@ -1,8 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from imageio.v2 import sizes
+
+from selection import *
 
 
-def plot_population(population, habitats, generation, circle_radius, children_proportion, save_path=None, show_plot=False):
+def plot_population(population, habitats, generation, fitness_levels, children_proportion, sigma, save_path=None, show_plot=False):
     """
     Rysuje populację w 2D wraz z optymalnym fenotypem alpha oraz okręgami wokół optimum.
     Można zarówno wyświetlać (show_plot=True), jak i zapisywać obraz (save_path != None).
@@ -16,27 +19,32 @@ def plot_population(population, habitats, generation, circle_radius, children_pr
     optima_xs = [optim[0] for optim in alpha]
     optima_ys = [optim[1] for optim in alpha]
 
-    plt.figure(figsize=(10, 10))
+
+    plt.figure(figsize=(16, 16))
+    labels = sorted(children_proportion)
 
     # Rysowanie okręgów wokół optimum
     sorted_proportion = sorted(children_proportion)
     # Lista [(odległość, max liczba dzieci)]
-    rules = [(threshold, max_children) for threshold, max_children in zip(reversed(sorted_proportion), sorted_proportion)]
-
-    legend_labels = set()
+    #rules = [(threshold, max_children) for threshold, max_children in zip(reversed(sorted_proportion), sorted_proportion)]
     colors = ["#c7e3c7", "#8ac58a", "#44a244"]
-    for (threshold, max_children), c in zip(rules,colors):
+    sorted_levels = sorted(zip(fitness_levels, children_proportion), key=lambda x: x[0], reverse=False)
+    legend_labels = set()
+    for (threshold, max_children), c, l in zip(sorted_levels, colors, labels):
+        radius = np.sqrt(-2 * sigma ** 2 * np.log(threshold))  # Poziomice fitness
         for optim in alpha:
-            label = f"{max_children} szans na potomka"
+            label = f"{l} szans na potomka"
             if label not in legend_labels:
                 legend_labels.add(label)
             else:
                 label = None
-            circle = plt.Circle(optim, threshold * circle_radius, color=c , fill=True, label=label, zorder=1)
+            circle = plt.Circle(optim, radius, color=c, fill=True, label=label, zorder=1)
             plt.gca().add_patch(circle)
 
     # Ustalanie koloru każdego osobnika na podstawie najbliższego optimum
-    optimum_colors= plt.cm.tab10(np.linspace(0, 1, len(alpha)))
+    color_map = plt.cm.get_cmap('tab10')
+    optimum_colors = [color_map(i % 10) for i in range(len(alpha)) if i % 10 != 2]
+
     individual_colors = []
     closest_optimum = []  #Lista do śledzenia, które optimum jest najbliżej każdego osobnika
     for ind_point in population_phenotypes:
@@ -51,11 +59,13 @@ def plot_population(population, habitats, generation, circle_radius, children_pr
         optimum_counts[idx] += 1
 
     plt.scatter(population_xs, population_ys, color=individual_colors, label="Osobnik", alpha=0.7)
+
     plt.scatter(optima_xs, optima_ys, color=optimum_colors, edgecolors='black', marker='X', s=150)
+
 
     for i in range(len(alpha)):
         label_optimum = f"Optimum {i + 1} ({optimum_counts[i]} osobników)"
-        plt.scatter([], [], color=optimum_colors[i], label=label_optimum, edgecolors='black', marker='X')
+        plt.scatter([], [], color=optimum_colors[i], label=label_optimum, edgecolors='black', marker='X',s=200)
 
     plt.title(f"Pokolenie: {generation}")
 

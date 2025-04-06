@@ -6,45 +6,28 @@ import config
 from mutation import mutate_individual
 from selection import fitness_function
 
-def bernoulli_reproduction(survivors, habitats, p, circle_radius, children_proportion, N, sigma):
+def bernoulli_reproduction(survivors, habitats, p, fitness_levels, children_proportion, N, sigma):
     """
     Generuje nową populację na podstawie odległości osobników od najbliższego optimum oraz
     prawdopodobieństwa reprodukcji w oparciu o rozkład Bernoullego.
     """
     new_population = []
-    # Zabezpieczenie: jeśli ktoś w configu nie poda listy rosnącej
-    sorted_proportion = sorted(children_proportion)
-    # Lista [(odległość, max liczba dzieci)]
-    rules = [(threshold, max_children) for threshold, max_children in zip(sorted_proportion, reversed(sorted_proportion))]
-
     if len(survivors) == 0:
         # Zabezpieczenie: jeśli wszyscy wymarli, inicjujemy od nowa (albo zatrzymujemy symulację).
         return []
 
+    sorted_levels = sorted(zip(fitness_levels, children_proportion), key=lambda x: x[0], reverse=True)
+    # print(sorted_levels)
+
     for parent in survivors:
-        """
-        Gdy mamy wiele optimów, takie liczenie odległości jest kompletnie bez sensu
+        fitness = fitness_function(parent.get_phenotype(), habitats[parent.get_current_habitat_idx()], sigma)
 
-        # distance = np.linalg.norm(np.array(parent.get_phenotype()) - np.array(alpha))
-
-        W naszym przypadku, alpha jest macierzą! Róznica (phenotype - alpha) daje macierz wektorów fenotypu od poszczególnych optimów
-        
-        DLA n OPTIMÓW:
-
-        - np.linalg.norm() spłaszcza macierz w wektor długości 2n i liczy normę L2 z tego długiego wektora.
-        - Wynikiem tej funkcji jest jedna liczba, równa n^2*RMS odległości od poszczególnych optimów (n^2 razy średnia kwadratowa)
-        - Gdy optima się oddalają, średnia kwadratowa jest bardzo szybko dominowana przez duże odgległości, dlatego osobniki nagle przestają się rozmnażać
-        """
-        distance  = parent.find_new_digs(habitats)[1] # konieczne tylko w pierwszej generacji, w kolejnych stanowi zabezpieczenie
-
-        for threshold, max_children in rules:
-            if distance <= threshold * circle_radius:
+        for threshold, max_children in sorted_levels:
+            if fitness  >= threshold :
                 chance = max_children
                 children = np.random.binomial(chance, p)
                 for _ in range(children):
                     new_individual = copy.deepcopy(parent)
-                    new_individual.set_parent_habitat_idx(parent.get_current_habitat_idx())
-                    # trzymamy indeksy zamiast obiektów Habitat, żeby ułatwić sobie analizę
                     mutate_individual(new_individual,mu=config.mu, mu_c=config.mu_c, xi=config.xi)
                     current_habitat_idx = new_individual.find_new_digs(habitats)[0]
                     habitats[current_habitat_idx].add_residents(new_individual)
@@ -58,8 +41,7 @@ def bernoulli_reproduction(survivors, habitats, p, circle_radius, children_propo
             new_population.extend([ind for ind, _ in fitnesses[:N]])
         else:
             new_population.extend(residents)
-
-    
+            
     return new_population
 
 
