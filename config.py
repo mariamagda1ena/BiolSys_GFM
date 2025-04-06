@@ -5,7 +5,7 @@ import numpy as np
 # -------------------
 # PARAMETRY POPULACJI
 # -------------------
-N = 50           # pojemność siedliska (maksymalna liczba osobników zasiedlających jedno siedlisko)
+N = 200          # pojemność siedliska (maksymalna liczba osobników zasiedlających jedno siedlisko)
 n = 2            # wymiar przestrzeni fenotypowej
 
 # --------------------
@@ -28,11 +28,11 @@ threshold = 0.5  # przykładowy próg do selekcji progowej (do ewentualnego uży
 # Początkowe alpha(t)
 alpha = np.array([0.0, 0.0])
 # Wektor kierunkowej zmiany c początkowego siedliska
-c = np.array([0.08, 0.08])   
+c = np.array([0.08, 0.08])
 
-delta = 0.2    # odchylenie standardowe dla fluktuacji
-max_generations = 100  # liczba pokoleń do zasymulowania
-circle_radius = 0.3
+delta = 0.2   # odchylenie standardowe dla fluktuacji
+max_generations = 300  # liczba pokoleń do zasymulowania
+fitness_levels = [0.2, 0.4, 0.8] # threshholdy fitnessu do reprodukcji
 
 max_num_optims = 9 # finalna liczba optimów fenotypowych
 
@@ -41,8 +41,7 @@ max_num_optims = 9 # finalna liczba optimów fenotypowych
 # ----------------------
 # W wersji bezpłciowej zakładamy klonowanie z uwzględnieniem mutacji.
 # Jeśli chcemy modelować płciowo, trzeba dodać odpowiednie parametry.
-# Zawsze maksymalna liczba dzieci będzie odwrotnie proporcjonalna do odległości od optimum
-# Jeśli wpiszemy 1,3,5 to dla osobnika znajdującego się w odległości 1*circle_radius max liczbą dzieci będzie 5 itd.
-children_proportion = [1,3,5]
 
-p = 0.2 # prawdopodobieństwo sukcesu reprodukcyjnego w pojedynczej próbie Bernoullego
+children_proportion = [1,3,5] # max liczba dzieci dla każdego thresholdu
+
+p = 1 # prawdopodobieństwo sukcesu reprodukcyjnego w pojedynczej próbie Bernoullego

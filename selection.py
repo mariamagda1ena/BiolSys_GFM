@@ -8,11 +8,10 @@ def fitness_function(phenotype, habitat, sigma):
     :param phenotype: fenotyp osobnika (np.array)
     :param sigma: odchylenie (float) kontrolujące siłę selekcji
     """
-    #dist_matrix = np.array(phenotype) - np.array(alpha)
-    #min_dist = min(np.linalg.norm(dist_matrix, axis=1))
+
     min_dist = np.linalg.norm(phenotype - habitat.get_optim())
 
-    return np.exp(-min_dist / (2 * sigma**2))
+    return np.exp(-min_dist**2 / (2 * sigma**2))
 
 def threshold_selection(population, habitats, sigma, threshold):
     """
