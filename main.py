@@ -27,7 +27,7 @@ def main():
     start_time = time.time()
 
     env = Environment(alpha_init=config.alpha, c=config.c, delta=config.delta)
-    pop = Population(size=config.N, n_dim=config.n)
+    pop = Population(alpha_init=config.alpha, size=config.N, n_dim=config.n)
 
     # Katalog, w którym zapisujemy obrazki (możesz nazwać np. "frames/")
     frames_dir = "frames"
