@@ -2,36 +2,14 @@
 
 import copy
 import numpy as np
-#from numpy.distutils.command.config import config
 import config
 from mutation import mutate_individual
 from selection import fitness_function
 
-
-def asexual_reproduction(survivors, N):
+def bernoulli_reproduction(survivors, habitats, p, circle_radius, children_proportion, N, sigma):
     """
-    Wersja bezpłciowa (klonowanie):
-    - Zakładamy, że potomków będzie tyle, aby utrzymać rozmiar populacji = N.
-    - W najprostszej wersji: jeżeli mamy M ocalałych, 
-      a M < N, to klonujemy ich losowo aż do uzyskania N osobników.
-    """
-    new_population = []
-    if len(survivors) == 0:
-        # Zabezpieczenie: jeśli wszyscy wymarli, inicjujemy od nowa (albo zatrzymujemy symulację).
-        return []
-
-    while len(new_population) < N:
-        parent = copy.deepcopy(survivors[0])  # np. zawsze klonuj pierwszego (do testów)
-        # W praktyce można klonować losowo: 
-        # parent = copy.deepcopy(np.random.choice(survivors))
-        new_population.append(parent)
-
-    return new_population[:N]  # przycinamy, gdyby było za dużo
-
-def bernoulli_reproduction(survivors, alpha, p, circle_radius, children_proportion, N, sigma):
-    """
-    Generuje nową populację na podstawie odległości od alpha oraz
-    prawdopodobieństwa reprodukcji w oparciu o rozkład Bernoulliego.
+    Generuje nową populację na podstawie odległości osobników od najbliższego optimum oraz
+    prawdopodobieństwa reprodukcji w oparciu o rozkład Bernoullego.
     """
     new_population = []
     # Zabezpieczenie: jeśli ktoś w configu nie poda listy rosnącej
@@ -44,7 +22,6 @@ def bernoulli_reproduction(survivors, alpha, p, circle_radius, children_proporti
         return []
 
     for parent in survivors:
-
         """
         Gdy mamy wiele optimów, takie liczenie odległości jest kompletnie bez sensu
 
@@ -58,9 +35,7 @@ def bernoulli_reproduction(survivors, alpha, p, circle_radius, children_proporti
         - Wynikiem tej funkcji jest jedna liczba, równa n^2*RMS odległości od poszczególnych optimów (n^2 razy średnia kwadratowa)
         - Gdy optima się oddalają, średnia kwadratowa jest bardzo szybko dominowana przez duże odgległości, dlatego osobniki nagle przestają się rozmnażać
         """
-        dist_matrix = np.array(parent.get_phenotype()) - np.array(alpha)
-        distance = min(np.linalg.norm(dist_matrix, axis=1))
-
+        distance  = parent.find_new_digs(habitats)[1] # konieczne tylko w pierwszej generacji, w kolejnych stanowi zabezpieczenie
 
         for threshold, max_children in rules:
             if distance <= threshold * circle_radius:
@@ -68,14 +43,27 @@ def bernoulli_reproduction(survivors, alpha, p, circle_radius, children_proporti
                 children = np.random.binomial(chance, p)
                 for _ in range(children):
                     new_individual = copy.deepcopy(parent)
+                    new_individual.set_parent_habitat_idx(parent.get_current_habitat_idx())
+                    # trzymamy indeksy zamiast obiektów Habitat, żeby ułatwić sobie analizę
                     mutate_individual(new_individual,mu=config.mu, mu_c=config.mu_c, xi=config.xi)
-                    new_population.append(new_individual)
-    # Przeżywają najlepiej dostosowane osobniki
-    if len(new_population) > N:
-        fitnesses = [(ind, fitness_function(ind.get_phenotype(), alpha, sigma)) for ind in new_population]
-        fitnesses.sort(key=lambda x: x[1], reverse=True)
-        return [ind for ind, _ in fitnesses[:N]]
-    else:
-        return new_population
+                    current_habitat_idx = new_individual.find_new_digs(habitats)[0]
+                    habitats[current_habitat_idx].add_residents(new_individual)
+                    # new_population.append(new_individual)
+
+
+    # main.py wtedy przechowuje gdzieś listę obiektów klasy Habitat i konstruuje populację
+    # a jaki jest wtedy output tej metody??
+    for habitat in habitats:
+        residents = habitat.get_residents()
+        if len(residents) > N:
+            fitnesses = [(ind, fitness_function(ind.get_phenotype(), habitat, sigma)) for ind in residents]
+            fitnesses.sort(key=lambda x: x[1], reverse=True)
+            new_population.extend([ind for ind, _ in fitnesses[:N]])
+        else:
+            new_population.extend(residents)
+
+    
+    # ona jest appendowana też wcześniej
+    return new_population
 
 

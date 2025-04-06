@@ -2,41 +2,19 @@
 
 import numpy as np
 
-def fitness_function(phenotype, alpha, sigma):
+def fitness_function(phenotype, habitat, sigma):
     """
     Funkcja fitness: phi_alpha(p) = exp( -||p - alpha||^2 / (2*sigma^2) )
     :param phenotype: fenotyp osobnika (np.array)
-    :param alpha: optymalny fenotyp (np.array)
     :param sigma: odchylenie (float) kontrolujące siłę selekcji
     """
-    dist_matrix = np.array(phenotype) - np.array(alpha)
-    min_dist = min(np.linalg.norm(dist_matrix, axis=1))
-    
+    #dist_matrix = np.array(phenotype) - np.array(alpha)
+    #min_dist = min(np.linalg.norm(dist_matrix, axis=1))
+    min_dist = np.linalg.norm(phenotype - habitat.get_optim())
+
     return np.exp(-min_dist / (2 * sigma**2))
 
-def proportional_selection(population, alpha, sigma, N):
-    """
-    Model proporcjonalny: 
-      - P(rozmnożenia) = fitness / suma fitnessów
-      - Generujemy nową populację wielkości N.
-    """
-    individuals = population.get_individuals()
-    fitnesses = [fitness_function(ind.get_phenotype(), alpha, sigma) for ind in individuals]
-    total_fitness = sum(fitnesses)
-    if total_fitness == 0:
-        # Jeśli całkowite fitness jest 0, to każdy osobnik dostaje równą szansę
-        probabilities = [1.0 / len(individuals)] * len(individuals)
-    else:
-        probabilities = [f / total_fitness for f in fitnesses]
-
-    new_individuals = []
-    for _ in range(N):
-        chosen_idx = np.random.choice(range(len(individuals)), p=probabilities)
-        new_individuals.append(individuals[chosen_idx])
-
-    population.set_individuals(new_individuals)
-
-def threshold_selection(population, alpha, sigma, threshold):
+def threshold_selection(population, habitats, sigma, threshold):
     """
     Model progowy:
       - Eliminujemy osobniki, których fitness < threshold.
@@ -46,7 +24,10 @@ def threshold_selection(population, alpha, sigma, threshold):
     individuals = population.get_individuals()
     survivors = []
     for ind in individuals:
-        f = fitness_function(ind.get_phenotype(), alpha, sigma)
+        closest_habitat_idx = ind.find_new_digs(habitats)[0] # threshold_selection włączamy po zmianie środowiska, więc osobnik musi sobie znaleźć nowe miejsce do życia
+        # w tym miejscu można brać min_distance zamiast closest_idx i to dać do fitnessu
+        # ale trzeba by zrobić jakić overloading funkcji fitness
+        f = fitness_function(ind.get_phenotype(), habitats[closest_habitat_idx], sigma)
         if f >= threshold:
             survivors.append(ind)
     return survivors
