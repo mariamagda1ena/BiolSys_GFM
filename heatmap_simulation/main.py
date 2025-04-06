@@ -1,0 +1,121 @@
+# main.py
+import copy
+
+import numpy as np
+import config
+from environment import Environment, Habitat
+from population import Population
+from mutation import mutate_population
+from selection import fitness_function
+from reproduction import bernoulli_reproduction
+from visualization import plot_population
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# main.py
+
+import os
+import shutil
+import time
+import numpy as np
+import config
+from environment import Environment
+from population import Population
+from mutation import mutate_population
+from selection import threshold_selection
+from visualization import plot_population
+from multiprocessing import current_process
+
+def main(mu,sigma):
+    frames_dir = f"frames_{current_process().name}"
+    start_time = time.time()
+    env = Environment(alpha_init=[0,0], c=config.c, delta=config.delta)
+    pop = Population(size=config.N, n_dim=config.n)
+    habitats = env.get_habitats()
+    # Katalog, w którym zapisujemy obrazki (możesz nazwać np. "frames/")
+    #frames_dir = "frames"
+
+    # Usuń katalog frames_dir, jeśli istnieje
+    if os.path.exists(frames_dir):
+        shutil.rmtree(frames_dir)
+
+    os.makedirs(frames_dir, exist_ok=True)  # tworzy folder, jeśli nie istnieje
+
+    fitness_per_gen = []
+    survivors = pop.get_individuals()
+    for generation in range(config.max_generations):
+        # 1. Reprodukcja
+        if len(survivors) > 0:
+            new_population = bernoulli_reproduction(survivors, env.get_habitats(), config.p,
+                                                            config.fitness_levels, config.children_proportion, config.N, sigma, mu)
+            pop.set_individuals(new_population)
+            fitnesses = [fitness_function(ind.get_phenotype(), habitats[ind.get_current_habitat_idx()], sigma) for
+                         ind in survivors]
+            fitness_per_gen.append(fitnesses)
+
+        else:
+            print(f"Wszyscy wymarli w pokoleniu {generation-1}. Kończę symulację.")
+            break
+
+                # 2. Mutacja
+                # mutate_population(pop, mu=config.mu, mu_c=config.mu_c, xi=config.xi)
+                # mutacja jest już zawarta w reprodukcji i nie chcemy znowu mutować wszystkiego
+
+                # 3. Zmiana środowiska
+        env.update()
+                # Rozszerzanie środowiska w równych odstępach pokoleń
+        if generation > 0 and generation % (config.max_generations // config.max_num_optims) == 0:
+                    env.expand(config.n)
+
+                # 4. Selekcja
+                # aktualizujemy current_habitat metodą populacji, która wywołuje metodę osobnika
+                # jeśli w tym miejscu zachodzi aktualizacja, to fitness może liczyć tylko jedną odległość
+
+        survivors = threshold_selection(pop, env.get_habitats(), sigma, config.threshold)
+
+                # czy dodać tutaj kolejną selekcję ze względu na pojemność siedliska?
+
+        pop.set_individuals(survivors)
+
+                #print([habitat.get_optim() for habitat in env.get_habitats()])
+                # 5. Zapis aktualnego stanu populacji do pliku PNG
+        frame_filename = os.path.join(frames_dir, f"frame_{generation:03d}.png")
+        plot_population(pop, env.get_habitats(), generation, config.fitness_levels, config.children_proportion, config.sigma, save_path=frame_filename, show_plot=False)
+        all_fitnesses = [x for sublista in fitness_per_gen for x in sublista]
+    return np.mean(np.std(all_fitnesses)), np.mean(all_fitnesses)
+
+
+    print("Symulacja zakończona. Tworzenie GIF-a...")
+
+    # Tutaj wywołujemy funkcję, która połączy zapisane klatki w animację
+    create_gif_from_frames(frames_dir, "simulation.gif")
+    print("GIF zapisany jako simulation.gif")
+
+    end_time = time.time()
+    print(f"Czas wykonania: {end_time - start_time:.2f} sekundy")
+
+
+
+def create_gif_from_frames(frames_dir, gif_filename, duration=0.2):
+    """
+    Łączy wszystkie obrazki z katalogu `frames_dir` w jeden plik GIF.
+    Wymaga biblioteki imageio (pip install imageio).
+    :param frames_dir: folder z plikami .png
+    :param gif_filename: nazwa pliku wyjściowego GIF
+    :param duration: czas wyświetlania jednej klatki w sekundach
+    """
+    import imageio
+    import os
+
+    # Sortujemy pliki po nazwach, żeby zachować kolejność generacji
+    filenames = sorted([f for f in os.listdir(frames_dir) if f.endswith(".png")])
+    
+    with imageio.get_writer(gif_filename, mode='I', duration=duration) as writer:
+        for file_name in filenames:
+            path = os.path.join(frames_dir, file_name)
+            image = imageio.v2.imread(path)
+            writer.append_data(image)
+
+
+if __name__ == "__main__":
+    main()

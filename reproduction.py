@@ -6,7 +6,7 @@ import config
 from mutation import mutate_individual
 from selection import fitness_function
 
-def bernoulli_reproduction(survivors, habitats, p, fitness_levels, children_proportion, N, sigma):
+def bernoulli_reproduction(survivors, habitats, p, fitness_levels, children_proportion, N, sigma, mu):
     """
     Generuje nową populację na podstawie odległości osobników od najbliższego optimum oraz
     prawdopodobieństwa reprodukcji w oparciu o rozkład Bernoullego.
@@ -28,7 +28,7 @@ def bernoulli_reproduction(survivors, habitats, p, fitness_levels, children_prop
                 children = np.random.binomial(chance, p)
                 for _ in range(children):
                     new_individual = copy.deepcopy(parent)
-                    mutate_individual(new_individual,mu=config.mu, mu_c=config.mu_c, xi=config.xi)
+                    mutate_individual(new_individual,mu=mu, mu_c=config.mu_c, xi=config.xi)
                     current_habitat_idx = new_individual.find_new_digs(habitats)[0]
                     habitats[current_habitat_idx].add_residents(new_individual)
 
