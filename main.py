@@ -5,8 +5,8 @@ import config
 from environment import Environment
 from population import Population
 from mutation import mutate_population
-from selection import proportional_selection, threshold_selection
-from reproduction import asexual_reproduction, bernoulli_reproduction
+from selection import threshold_selection
+from reproduction import bernoulli_reproduction
 from visualization import plot_population
 
 # main.py
@@ -19,15 +19,14 @@ import config
 from environment import Environment
 from population import Population
 from mutation import mutate_population
-from selection import proportional_selection, threshold_selection
-from reproduction import asexual_reproduction
+from selection import threshold_selection
 from visualization import plot_population
 
 def main():
 
     start_time = time.time()
 
-    env = Environment(alpha_init=config.alpha0, c=config.c, delta=config.delta)
+    env = Environment(alpha_init=config.alpha, c=config.c, delta=config.delta)
     pop = Population(size=config.N, n_dim=config.n)
 
     # Katalog, w którym zapisujemy obrazki (możesz nazwać np. "frames/")
@@ -43,7 +42,7 @@ def main():
     for generation in range(config.max_generations):
         # 1. Reprodukcja
         if len(survivors) > 0:
-            new_population = bernoulli_reproduction(survivors, env.get_optimal_phenotype(), config.p,
+            new_population = bernoulli_reproduction(survivors, env.get_habitats(), config.p,
                                                     config.circle_radius, config.children_proportion, config.N, config.sigma)
             pop.set_individuals(new_population)
         else:
@@ -51,7 +50,8 @@ def main():
             break
             
         # 2. Mutacja
-        mutate_population(pop, mu=config.mu, mu_c=config.mu_c, xi=config.xi)
+        # mutate_population(pop, mu=config.mu, mu_c=config.mu_c, xi=config.xi)
+        # mutacja jest już zawarta w reprodukcji i nie chcemy znowu mutować wszystkiego
 
         # 3. Zmiana środowiska
         env.update()
@@ -59,13 +59,26 @@ def main():
         if generation > 0 and generation % (config.max_generations // config.max_num_optims) == 0:
             env.expand(config.n)
 
+
+
+
         # 4. Selekcja
-        survivors = threshold_selection(pop, env.get_optimal_phenotype(), config.sigma, config.threshold)
+        # aktualizujemy current_habitat metodą populacji, która wywołuje metodę osobnika
+        # jeśli w tym miejscu zachodzi aktualizacja, to fitness może liczyć tylko jedną odległość
+
+        survivors = threshold_selection(pop, env.get_habitats(), config.sigma, config.threshold)
+      
+
+
+        # czy dodać tutaj kolejną selekcję ze względu na pojemność siedliska?
+
         pop.set_individuals(survivors)
 
+
+        #print([habitat.get_optim() for habitat in env.get_habitats()])
         # 5. Zapis aktualnego stanu populacji do pliku PNG
         frame_filename = os.path.join(frames_dir, f"frame_{generation:03d}.png")
-        plot_population(pop, env.get_optimal_phenotype(), generation, config.circle_radius, config.children_proportion, save_path=frame_filename, show_plot=False)
+        plot_population(pop, env.get_habitats(), generation, config.circle_radius, config.children_proportion, save_path=frame_filename, show_plot=False)
 
     print("Symulacja zakończona. Tworzenie GIF-a...")
 
