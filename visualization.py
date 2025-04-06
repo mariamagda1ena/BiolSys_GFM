@@ -43,8 +43,9 @@ def plot_population(population, habitats, generation, fitness_levels, children_p
 
     # Ustalanie koloru każdego osobnika na podstawie najbliższego optimum
     color_map = plt.cm.get_cmap('tab10')
-    optimum_colors = [color_map(i % 10) for i in range(len(alpha)) if i % 10 != 2]
-
+    forbidden = [2]  # pomijamy zielony
+    valid_indices = [i for i in range(10) if i not in forbidden]
+    optimum_colors = [color_map(valid_indices[i % len(valid_indices)]) for i in range(len(alpha))]
     individual_colors = []
     closest_optimum = []  #Lista do śledzenia, które optimum jest najbliżej każdego osobnika
     for ind_point in population_phenotypes:
