@@ -30,7 +30,7 @@ def main(mu,sigma):
     frames_dir = f"frames_{current_process().name}"
     start_time = time.time()
     env = Environment(alpha_init=[0,0], c=config.c, delta=config.delta)
-    pop = Population(size=config.N, n_dim=config.n)
+    pop = Population(alpha_init=[0,0], size=config.N, n_dim=config.n)
     habitats = env.get_habitats()
     # Katalog, w którym zapisujemy obrazki (możesz nazwać np. "frames/")
     #frames_dir = "frames"
